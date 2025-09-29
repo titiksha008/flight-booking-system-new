@@ -26,9 +26,10 @@
         <tbody>
         <tr th:each="booking : ${bookings}">
             <td th:text="${booking.id}"></td>
-            <td th:text="${booking.flight.flightNumber}"></td>
-            <td th:text="${booking.flight.source}"></td>
-            <td th:text="${booking.flight.destination}"></td>
+            <td th:text="${booking.flight?.flightNumber} ?: 'N/A'"></td>
+            <td th:text="${booking.flight?.source} ?: 'N/A'"></td>
+            <td th:text="${booking.flight?.destination} ?: 'N/A'"></td>
+
 
 
             <td th:text="${booking.seatsBooked}"></td>

@@ -1,3 +1,4 @@
+
 package com.flightbooking.fbs.controller;
 
 import com.flightbooking.fbs.entity.User;
@@ -5,8 +6,8 @@ import com.flightbooking.fbs.services.UserService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.flightbooking.fbs.entity.Role; // <-- add this at the top
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -19,52 +20,76 @@ public class UserController {
         this.userService = userService;
     }
 
-    // ✅ Register new user
-    @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
-        User savedUser = userService.registerUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("👤 User registered successfully! User ID: " + savedUser.getId());
-    }
+//    // Register new user
+//    @PostMapping("/register")
+//    public User registerUser(@RequestBody User user) {
+//        return userService.registerUser(user);
+//    }
 
-    // ✅ Get user by ID
+    // Get user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
-        return user.<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("❌ User with ID " + id + " not found."));
+    public Optional<User> getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
-
-    // ✅ Get all users
+    // UserController.java
     @GetMapping
     public ResponseEntity<?> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        if (users.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body("⚠️ No users found.");
-        }
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // ✅ Get user by email
+
+    // Get user by email
     @GetMapping("/email/{email}")
-    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
-        Optional<User> user = userService.getUserByEmail(email);
-        return user.<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("❌ User with email " + email + " not found."));
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        Optional<User> userOpt = userService.getUserByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 if not found
+        }
+        return ResponseEntity.ok(userOpt.get());
     }
 
-    // ✅ Delete user by ID
+
+    // Delete user by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        boolean deleted = userService.deleteUser(id);
+        boolean deleted = userService.deleteUser(id); // call service method
         if (deleted) {
-            return ResponseEntity.ok("🗑️ User with ID " + id + " deleted successfully!");
+            return ResponseEntity.ok("User deleted successfully ✅");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("❌ User with ID " + id + " not found.");
+                    .body("User with ID " + id + " not found ❌");
         }
     }
+
+
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(@RequestBody User user) {
+        // Assign default role if none provided
+        if (user.getRole() == null) {
+            user.setRole(Role.USER);
+        }
+        User savedUser = userService.registerUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<User> login(@RequestBody User loginRequest) {
+        String email = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
+
+        Optional<User> userOpt = userService.getUserByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // User not found
+        }
+
+        User user = userOpt.get();
+        if (!user.getPassword().equals(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // Invalid password
+        }
+
+        return ResponseEntity.ok(user); // Login successful
+    }
+
+
+
 }

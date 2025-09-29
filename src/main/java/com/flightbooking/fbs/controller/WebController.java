@@ -4,6 +4,8 @@ import com.flightbooking.fbs.entity.User;
 import com.flightbooking.fbs.services.UserService;
 import com.flightbooking.fbs.services.FlightService;
 import com.flightbooking.fbs.services.BookingService;
+import com.flightbooking.fbs.entity.Flight;
+import com.flightbooking.fbs.entity.Role;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -59,13 +61,16 @@ public class WebController {
         Optional<User> userOpt = userService.getUserByEmail(email);
 
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-            session.setAttribute("loggedInUser", userOpt.get());
+            User loggedInUser = userOpt.get();
+            session.setAttribute("loggedInUser", loggedInUser);
+            session.setAttribute("role", loggedInUser.getRole()); // store role separately
             return "redirect:/web/dashboard"; // go to dashboard after login
         }
 
         model.addAttribute("error", "Invalid email or password");
         return "login";
     }
+
 
     // Logout
     @GetMapping("/logout")
@@ -137,4 +142,110 @@ public class WebController {
         model.addAttribute("user", loggedInUser);
         return "profile";
     }
+
+    @GetMapping("/flights/manage")
+    public String manageFlights(HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || loggedInUser.getRole() != Role.ADMIN) {
+            return "redirect:/web/login"; // only admin allowed
+        }
+
+        model.addAttribute("flights", flightService.getAllFlights());
+        model.addAttribute("newFlight", new Flight()); // for adding flight
+        return "manage-flights"; // new Thymeleaf page
+    }
+
+    // Add flight
+    @PostMapping("/flights/add")
+    public String addFlight(@ModelAttribute Flight flight, HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+        if (user == null || user.getRole() != Role.ADMIN) return "redirect:/web/login";
+
+        flightService.addFlight(flight);
+        return "redirect:/web/flights/manage";
+    }
+
+    // Delete flight
+    @PostMapping("/flights/delete/{id}")
+    public String deleteFlight(@PathVariable Long id, HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+        if (user == null || user.getRole() != Role.ADMIN) return "redirect:/web/login";
+
+        flightService.deleteFlight(id);
+        return "redirect:/web/flights/manage";
+    }
+
+    // Admin: Manage Users page
+    @GetMapping("/users/manage")
+    public String manageUsers(HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || loggedInUser.getRole() != Role.ADMIN) {
+            return "redirect:/web/login"; // only admin allowed
+        }
+
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("newUser", new User()); // form for adding new user
+        return "manage-users"; // Thymeleaf page
+    }
+
+    // Admin: Add user
+    @PostMapping("/users/add")
+    public String addUser(@ModelAttribute User user, @RequestParam String role, HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || loggedInUser.getRole() != Role.ADMIN) return "redirect:/web/login";
+
+        Role userRole = Role.valueOf(role); // convert string to Role enum
+        userService.registerUserWithRole(user, userRole);
+
+        return "redirect:/web/users/manage";
+    }
+
+    // Admin: Delete user
+    @PostMapping("/users/delete/{id}")
+    public String deleteUser(@PathVariable Long id, HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || loggedInUser.getRole() != Role.ADMIN) return "redirect:/web/login";
+
+        userService.deleteUser(id);
+        return "redirect:/web/users/manage";
+    }
+
+    // Admin: Manage Bookings page
+    @GetMapping("/bookings/manage")
+    public String manageBookings(HttpSession session, Model model) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || loggedInUser.getRole() != Role.ADMIN) {
+            return "redirect:/web/login"; // only admin allowed
+        }
+
+        model.addAttribute("bookings", bookingService.getAllBookings());
+        return "manage-bookings"; // new Thymeleaf page
+    }
+
+    // Admin: Cancel booking
+    @PostMapping("/bookings/cancel/{id}")
+    public String cancelBooking(@PathVariable Long id, HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || loggedInUser.getRole() != Role.ADMIN) return "redirect:/web/login";
+
+        bookingService.cancelBooking(id);
+        return "redirect:/web/bookings/manage";
+    }
+
+    // Admin: Add booking for a user
+    @PostMapping("/bookings/add")
+    public String addBooking(@RequestParam Long userId,
+                             @RequestParam Long flightId,
+                             @RequestParam int seatsBooked,
+                             HttpSession session) {
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
+        if (loggedInUser == null || loggedInUser.getRole() != Role.ADMIN) {
+            return "redirect:/web/login"; // only admin can add bookings
+        }
+
+        bookingService.bookFlight(userId, null, flightId, null, seatsBooked);
+        return "redirect:/web/bookings/manage";
+    }
+
+
 }

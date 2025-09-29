@@ -51,15 +51,6 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-
-    // Cancel a booking
-    public boolean cancelBooking(Long bookingId) {
-        if (bookingRepository.existsById(bookingId)) {
-            bookingRepository.deleteById(bookingId);
-            return true;   // booking existed and was deleted
-        }
-        return false;      // booking didn't exist
-    }
     public void partialCancelBooking(Long bookingId, int seatsToCancel) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
@@ -72,6 +63,16 @@ public class BookingService {
             booking.setSeatsBooked(booking.getSeatsBooked() - seatsToCancel);
             bookingRepository.save(booking);
         }
+    }
+
+
+    // Cancel a booking
+    public boolean cancelBooking(Long bookingId) {
+        if (bookingRepository.existsById(bookingId)) {
+            bookingRepository.deleteById(bookingId);
+            return true;   // booking existed and was deleted
+        }
+        return false;      // booking didn't exist
     }
 
 
