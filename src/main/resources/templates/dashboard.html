@@ -1,25 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org">-->
-<!--<head>-->
-<!--  <meta charset="UTF-8">-->
-<!--  <title>Dashboard</title>-->
-<!--  <link rel="stylesheet" th:href="@{/style.css}" />-->
-<!--</head>-->
-<!--<body>-->
-<!--<div th:replace="fragments/navbar :: navbar"></div>-->
-
-<!--<div class="container">-->
-<!--  <h2>Dashboard</h2>-->
-<!--  <p>Welcome, <span th:text="${user.name}">User</span>!</p>-->
-<!--  <ul>-->
-<!--    <li><a th:href="@{/web/flights}">Search Flights</a></li>-->
-<!--    <li><a th:href="@{/web/bookings}">My Bookings</a></li>-->
-<!--    <li><a th:href="@{/web/profile}">Profile</a></li>-->
-<!--  </ul>-->
-<!--</div>-->
-<!--</body>-->
-<!--</html>-->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -30,29 +8,78 @@
 <body>
 <div th:replace="fragments/navbar :: navbar"></div>
 
-<div class="container">
-    <h2>Dashboard</h2>
-    <p>Welcome, <span th:text="${user.name}">User</span>!</p>
+<div class="db-container">
 
-    <!-- Admin Panel -->
-    <div th:if="${user.role.name() == 'ADMIN'}">
-        <h3>Admin Panel</h3>
-        <ul>
-            <li><a th:href="@{/web/flights/manage}">Manage Flights</a></li>
-            <li><a th:href="@{/web/users/manage}">Manage Users</a></li>
-            <li><a th:href="@{/web/bookings/manage}">Manage Bookings</a></li>
-        </ul>
+    <!-- Welcome -->
+    <h2 class="db-title">Welcome, <span th:text="${user.name}">User</span>!</h2>
+
+    <!-- Summary Cards -->
+    <div class="db-summary-cards">
+        <!-- Admin Stats -->
+        <div class="db-card db-summary" th:if="${user.role.name() == 'ADMIN'}">
+            <h4>Total Users</h4>
+            <p th:text="${totalUsers}">0</p>
+        </div>
+        <div class="db-card db-summary" th:if="${user.role.name() == 'ADMIN'}">
+            <h4>Total Flights</h4>
+            <p th:text="${totalFlights}">0</p>
+        </div>
+        <div class="db-card db-summary" th:if="${user.role.name() == 'ADMIN'}">
+            <h4>Total Bookings</h4>
+            <p th:text="${totalBookings}">0</p>
+        </div>
+
+        <!-- User Stats -->
+        <div class="db-card db-summary" th:if="${user.role.name() == 'USER'}">
+            <h4>Your Bookings</h4>
+            <p th:text="${myBookings}">0</p>
+        </div>
     </div>
 
-    <!-- User Panel -->
-    <div th:if="${user.role.name() == 'USER'}">
-        <h3>User Panel</h3>
-        <ul>
-            <li><a th:href="@{/web/flights}">Search Flights</a></li>
-            <li><a th:href="@{/web/bookings}">My Bookings</a></li>
-            <li><a th:href="@{/web/profile}">Profile</a></li>
-        </ul>
+    <!-- Panels -->
+    <div class="db-panels">
+        <!-- Admin Panel -->
+        <div th:if="${user.role.name() == 'ADMIN'}" class="db-card db-admin">
+            <h3>Admin Panel</h3>
+            <ul class="db-links">
+                <li><a th:href="@{/web/flights/manage}">Manage Flights</a></li>
+                <li><a th:href="@{/web/users/manage}">Manage Users</a></li>
+                <li><a th:href="@{/web/bookings/manage}">Manage Bookings</a></li>
+            </ul>
+        </div>
+
+        <!-- User Panel -->
+        <div th:if="${user.role.name() == 'USER'}" class="db-card db-user">
+            <h3>User Panel</h3>
+            <ul class="db-links">
+                <li><a th:href="@{/web/flights}">Search Flights</a></li>
+                <li><a th:href="@{/web/bookings}">My Bookings</a></li>
+                <li><a th:href="@{/web/profile}">Profile</a></li>
+            </ul>
+        </div>
     </div>
+
+    <!-- Recent Activity Table -->
+    <div class="db-card db-activity">
+        <h3>Recent Bookings</h3>
+        <table class="db-recent">
+            <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Flight</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="b : ${recentBookings}">
+                <td th:text="${b.id}">123</td>
+                <td th:text="${b.flight.flightNumber}">FL123</td>
+                <td th:text="${b.status}">Confirmed</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
 </div>
 </body>
 </html>

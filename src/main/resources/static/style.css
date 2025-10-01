@@ -327,3 +327,145 @@ a:hover {
         gap: 20px;
     }
 }
+
+
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ecf0f1;
+    margin: 0;
+    padding: 0;
+}
+
+.db-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+.db-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+/* Summary Cards */
+.db-summary-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.db-card.db-summary {
+    background-color: #3498db;
+    color: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    text-align: center;
+    min-width: 150px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.db-card.db-summary:hover {
+    transform: translateY(-5px);
+    background-color: #2980b9; /* darker shade */
+}
+
+.db-card.db-summary h4 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.db-card.db-summary p {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Panels */
+.db-panels {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.db-card.db-admin, .db-card.db-user {
+    background-color: #2ecc71;
+    color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    flex: 1 1 300px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.db-card.db-admin:hover, .db-card.db-user:hover {
+    transform: translateY(-5px);
+    background-color: #27ae60; /* darker green */
+}
+
+.db-links {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.db-links li {
+    margin-bottom: 10px;
+}
+
+.db-links a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.db-links a:hover {
+    color: #ecf0f1;
+    text-decoration: underline;
+}
+
+/* Recent Activity Table */
+/* Recent Activity Table */
+.db-card.db-activity {
+    background-color: #ffffff; /* lighter bg for table card */
+    color: #2c3e50; /* dark text */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    overflow-x: auto;
+}
+
+.db-card.db-activity table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.db-card.db-activity th, .db-card.db-activity td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.db-card.db-activity th {
+    background-color: #3498db; /* dark blue header */
+    color: #fff;
+    font-weight: 600;
+}
+
+.db-card.db-activity tr:nth-child(even) {
+    background-color: #ecf0f1; /* light gray for alternate rows */
+}
+
+.db-card.db-activity tr:nth-child(odd) {
+    background-color: #ffffff; /* white for odd rows */
+}
+
+.db-card.db-activity tr:hover {
+    background-color: #d6eaf8; /* hover highlight in light blue */
+}

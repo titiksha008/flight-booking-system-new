@@ -41,9 +41,11 @@ public class WebController {
         return "register";
     }
 
+
     @PostMapping("/register")
     public String registerUser(@ModelAttribute User user) {
-        userService.registerUser(user);
+//        userService.registerUser(user);
+        userService.registerUserWithRole(user, Role.USER); // default role assigned
         return "redirect:/web/login";
     }
 
@@ -79,6 +81,7 @@ public class WebController {
         return "redirect:/web/login";
     }
 
+
     // Dashboard
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
@@ -86,6 +89,19 @@ public class WebController {
         if (loggedInUser == null) return "redirect:/web/login";
 
         model.addAttribute("user", loggedInUser);
+
+        // Stats and recent bookings
+        if (loggedInUser.getRole() == Role.ADMIN) {
+            model.addAttribute("totalUsers", userService.getAllUsers().size());
+            model.addAttribute("totalFlights", flightService.getAllFlights().size());
+            model.addAttribute("totalBookings", bookingService.getAllBookings().size());
+
+            model.addAttribute("recentBookings", bookingService.getAllBookings());
+        } else { // USER
+            model.addAttribute("myBookings", bookingService.getBookingsByUser(loggedInUser.getId()).size());
+            model.addAttribute("recentBookings", bookingService.getBookingsByUser(loggedInUser.getId()));
+        }
+
         return "dashboard";
     }
 
